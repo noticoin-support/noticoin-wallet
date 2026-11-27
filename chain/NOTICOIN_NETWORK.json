@@ -1,0 +1,78 @@
+{
+  "name": "Noticoin",
+  "ticker": "NOTICOIN",
+  "version": "1.0.0",
+  "parent": "Monero v0.18.5.4",
+  "parentCommit": "85f036ba7019cd36f08e8a38a27c37ea7b522618",
+  "targetBlockSeconds": 45,
+  "proofOfWork": "RandomX",
+  "decimals": 9,
+  "minedUnlockBlocks": 160,
+  "spendableAgeBlocks": 6,
+  "spendableAgeForkHeight": 160,
+  "spendableAgeForkVersion": 17,
+  "premineSpendableAtomic": "0",
+  "networks": [
+    {
+      "name": "mainnet",
+      "prefixes": [
+        111,
+        112,
+        113
+      ],
+      "ports": [
+        19080,
+        19081,
+        19082
+      ],
+      "networkId": "305639f9810544e48197a8f69a0a6d19",
+      "genesisTx": "01a00101ff0001bce9cdc441022e3118851ed9013d92650f9f25d1727403b3e0a22217f9fe5982aaa98bc428302101aa574354a08707fc30d919ceb43f6de397d811eadfeea27ada59d73077a46076",
+      "genesisNonce": 113100,
+      "genesisBurnAtomic": "17592186044",
+      "genesisHash": "2784467d7c909874668b9f0accf533c63f77aad79a3b72bfc5b23ca09e3cb614"
+    },
+    {
+      "name": "testnet",
+      "prefixes": [
+        114,
+        115,
+        116
+      ],
+      "ports": [
+        29080,
+        29081,
+        29082
+      ],
+      "networkId": "3946c278a80142618044dfa92619e1e7",
+      "genesisTx": "01a00101ff0001bce9cdc44102fc041e9ab2db5e80348ead0d09b7a10a1d29f3b26173cb2cf479d4c90c17a94c2101d33e5fbd872f4171882c07a7d952aa5c763855ec509866448d10935824e46f1e",
+      "genesisNonce": 113101,
+      "genesisBurnAtomic": "17592186044",
+      "genesisHash": "e2c8d4803df588a35e8289d2f939f3521ec92c43d4e8e453d05585917c205a90"
+    },
+    {
+      "name": "stagenet",
+      "prefixes": [
+        117,
+        118,
+        119
+      ],
+      "ports": [
+        39080,
+        39081,
+        39082
+      ],
+      "networkId": "0205f90fad5c4d41a8ad3bf27b9c1f06",
+      "genesisTx": "01a00101ff0001bce9cdc441024f4d4f48ec4549385aadb1a1ffade4306d86aaccc3ec6d54064f74557d11ffdd21010fe2d34335e62dfdde645a41c355a98778c6365035a3da3daafd438cac800dd4",
+      "genesisNonce": 113102,
+      "genesisBurnAtomic": "17592186044",
+      "genesisHash": "090c1b22ef96a0d7e05d7ec6321ad3f61d4f36c90cce2ce573e3c4be19f8daef"
+    }
+  ],
+  "emission": {
+    "maxSupplyAtomic": "382000000000000000",
+    "remainingShift": 22,
+    "rounding": "ceil",
+    "tailEmission": false,
+    "feeReferenceFloorAtomic": "300000000"
+  }
+}

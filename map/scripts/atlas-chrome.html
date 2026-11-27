@@ -1,0 +1,199 @@
+<div class="space" aria-hidden="true"></div>
+<div id="map" aria-label="Интерактивная карта мира"></div>
+
+<header class="atlas-toolbar">
+  <div class="search-wrap">
+    <form id="search-form" role="search">
+      <span class="search-icon" aria-hidden="true"></span>
+      <input id="search" aria-label="Найти город, координаты или сообщение" placeholder="Поиск по карте" autocomplete="off">
+      <button type="button" id="clear-search" class="icon-btn" aria-label="Очистить поиск" hidden>×</button>
+      <button type="button" id="atlas-city-toggle" aria-label="Избранные города" title="Избранные города" aria-controls="atlas-cities" aria-expanded="false">★</button>
+    </form>
+    <div id="search-results" class="search-results" hidden></div>
+    <div id="atlas-cities" class="search-results" aria-label="Избранные города" hidden>
+      <h2>Избранные города</h2>
+      <div id="atlas-city-list"></div>
+    </div>
+  </div>
+  <div class="atlas-actions">
+    <button id="atlas-layout" class="secondary" type="button" aria-pressed="false" title="Переключить компоновку карты">Список сбоку</button>
+    <button id="atlas-points" class="secondary" type="button" aria-expanded="false" aria-controls="atlas-explorer">Точки<span id="atlas-count" hidden></span></button>
+    <button id="map-invoices" class="secondary" type="button" hidden>Счета</button>
+    <div class="atlas-utility" role="group" aria-label="Действия карты">
+      <button id="private-pins-open" class="secondary atlas-tool-icon" type="button" aria-label="Получить закрытую метку" title="Получить закрытую метку" aria-haspopup="dialog" aria-controls="private-pins-dialog"></button>
+      <button id="about" class="secondary atlas-tool-icon" type="button" aria-label="О карте" title="О карте" aria-haspopup="dialog" aria-controls="about-modal"></button>
+    </div>
+    <button id="create" class="primary" type="button"><span aria-hidden="true">+</span> Оставить точку</button>
+  </div>
+</header>
+
+<aside id="atlas-explorer" class="explorer" aria-label="Точки на карте" hidden>
+  <div class="atlas-panel-heading">
+    <h2>Точки на карте</h2>
+    <button id="atlas-explorer-close" type="button" class="close-btn" aria-label="Закрыть список точек">×</button>
+  </div>
+  <nav class="nav" aria-label="Вид карты">
+    <button class="nav-item active" data-view="all" type="button">Все точки</button>
+    <button class="nav-item" data-view="mine" type="button">Мои</button>
+    <button class="nav-item" data-view="saved" type="button">Сохранённые</button>
+  </nav>
+  <div class="note-search-controls" role="search" aria-label="Поиск заметок">
+    <label class="note-query-field">
+      <span>Поиск заметок</span>
+      <input id="note-query" class="text-input" type="search" maxlength="100" placeholder="Введите слова" autocomplete="off" aria-describedby="note-search-hint">
+    </label>
+    <label>
+      <span>Страна</span>
+      <select id="note-country" class="text-input note-select" disabled><button type="button"><selectedcontent></selectedcontent></button><option value="">Все страны</option></select>
+    </label>
+    <label>
+      <span>Категория</span>
+      <select id="note-category-filter" class="text-input note-select"><button type="button"><selectedcontent></selectedcontent></button><option value="all">Все категории</option></select>
+    </label>
+    <p id="note-search-hint" class="small-note">Поиск по всему миру или по всей выбранной стране.</p>
+    <p id="note-search-status" class="small-note" role="status" hidden></p>
+    <p id="note-country-status" class="small-note" role="status" hidden></p>
+  </div>
+  <div class="list-heading"><span id="list-title">В пределах карты</span><span id="point-count"></span></div>
+  <div id="point-list" class="point-list"></div>
+</aside>
+
+<div class="map-tools" aria-label="Управление картой">
+  <button id="planet" type="button" title="Вся планета" aria-label="Отдалить до планеты">◎</button>
+  <div class="tool-separator" aria-hidden="true"></div>
+  <button id="zoom-in" type="button" title="Приблизить" aria-label="Приблизить">+</button>
+  <button id="zoom-out" type="button" title="Отдалить" aria-label="Отдалить">−</button>
+  <div class="tool-separator" aria-hidden="true"></div>
+  <button id="map-quality" type="button" aria-pressed="false" aria-label="Объёмные здания" title="Объёмные здания">3D</button>
+  <button id="compass" type="button" title="Север сверху" aria-label="Север сверху">↑</button>
+</div>
+
+<div class="map-footer"><div class="coordinates"><span id="zoom-label">Планета</span><button id="copy-map-coordinates" class="coordinate-button" type="button" title="Скопировать координаты" aria-label="Скопировать координаты" disabled><span id="coordinates"></span></button></div></div>
+<div class="atlas-controls">
+  <button id="atlas-download" class="secondary" type="button" disabled>Скачать район</button>
+  <button id="atlas-sources" class="secondary" type="button">Источники</button>
+</div>
+<div class="atlas-feedback">
+  <div id="map-status" class="map-status" role="status" hidden></div>
+  <button id="retry-streets" type="button" class="secondary" hidden>Повторить загрузку улиц</button>
+</div>
+
+<div id="placement" class="placement" hidden>
+  <div><strong>Выберите место</strong><span>Щёлкните правой кнопкой по карте и выберите место в меню.</span></div>
+  <button id="placement-cancel" class="secondary" type="button">Отмена</button>
+  <button id="placement-next" class="primary" type="button" hidden>Продолжить</button>
+</div>
+<div id="map-context-target" class="map-context-target" aria-hidden="true" hidden></div>
+<div id="map-context" class="map-context" role="menu" aria-label="Действия с точкой" hidden>
+  <div id="map-context-coordinates" class="map-context-coordinates" aria-hidden="true"></div>
+  <button id="map-context-select" type="button" role="menuitem" tabindex="-1"></button>
+  <button id="map-context-copy" type="button" role="menuitem" tabindex="-1">Скопировать координаты</button>
+  <button id="map-context-center" type="button" role="menuitem" tabindex="-1">Центрировать карту здесь</button>
+</div>
+<section id="detail" class="detail" aria-label="Выбранная точка" hidden>
+  <button id="detail-close" class="close-btn" type="button" aria-label="Закрыть точку">×</button>
+  <div id="detail-content"></div>
+</section>
+
+<dialog id="venue-dialog" class="modal venue-modal" aria-labelledby="venue-title">
+  <header class="modal-heading">
+    <h2 id="venue-title"></h2>
+    <button id="copy-venue-coordinates" class="coordinate-button coordinate-icon-button" type="button" title="Скопировать координаты" aria-label="Скопировать координаты" disabled></button>
+    <button type="button" class="close-btn" data-close="venue-dialog" aria-label="Закрыть">×</button>
+  </header>
+  <section class="place-notes">
+    <div class="place-notes-heading">
+      <h3>Заметки в этом месте</h3>
+      <button id="venue-add-note" class="primary" type="button" disabled>Оставить заметку</button>
+    </div>
+    <div id="venue-notes" aria-live="polite"></div>
+  </section>
+  <p id="venue-summary" class="venue-summary" role="status"></p>
+  <form id="venue-form" hidden>
+    <fieldset class="venue-rating">
+      <legend>Ваша оценка</legend>
+      <div id="venue-stars" class="venue-stars"></div>
+      <label class="field-label" for="venue-comment">Комментарий (необязательно)</label>
+      <textarea id="venue-comment" rows="3" maxlength="500" placeholder="Что стоит знать об этом месте?"></textarea>
+      <div class="venue-submit">
+        <button id="venue-submit" class="primary" type="submit">Сохранить отзыв</button>
+        <span id="venue-status" class="small-note" role="status"></span>
+      </div>
+    </fieldset>
+  </form>
+  <section id="venue-reviews" class="venue-reviews" aria-label="Отзывы"></section>
+</dialog>
+
+<dialog id="atlas-license" class="modal">
+  <h2>Источники карты</h2>
+  <p>Обзор мира подготовлен на основе Natural Earth.</p>
+  <p>Улицы и здания © OpenStreetMap contributors, ODbL 1.0. Векторные тайлы © OpenMapTiles, поставка OpenFreeMap.</p>
+  <p><a class="source-link" href="https://www.openstreetmap.org/copyright">Лицензия OpenStreetMap</a></p>
+  <form method="dialog"><button class="primary">Закрыть</button></form>
+</dialog>
+
+<dialog id="private-pins-dialog" class="modal private-pin-panel map-panel-dialog" aria-labelledby="private-pins-title">
+  <div class="modal-heading map-panel-heading">
+    <h2 id="private-pins-title">Получить закрытую метку</h2>
+    <button type="button" class="close-btn" data-close="private-pins-dialog" aria-label="Закрыть">×</button>
+  </div>
+  <section class="map-panel-frame">
+    <h3>1. Отправьте свой код получателя</h3>
+    <label class="field-label" for="private-receive-code">Ваш код получателя</label>
+    <div class="private-pin-code-row">
+      <input id="private-receive-code" class="text-input" readonly autocomplete="off" spellcheck="false" dir="ltr">
+      <button id="copy-private-receive" class="secondary" type="button" disabled>Копировать</button>
+    </div>
+    <p class="small-note">Передайте этот код человеку, который хочет отправить вам метку.</p>
+  </section>
+  <form id="private-import-form" class="map-panel-frame">
+    <h3>2. Откройте полученную метку</h3>
+    <p class="small-note">Вставьте зашифрованный код, который вам прислал отправитель, и нажмите «Открыть метку».</p>
+    <label class="field-label" for="private-import-code">Код полученной метки</label>
+    <textarea id="private-import-code" rows="2" maxlength="10000" required autocomplete="off" spellcheck="false" dir="ltr"></textarea>
+    <button id="private-import-button" class="primary" type="submit">Открыть метку</button>
+  </form>
+  <p id="private-pins-status" class="small-note" role="status"></p>
+  <div id="private-pins-list"></div>
+  <button id="private-lock" class="secondary" type="button">Заблокировать метки</button>
+</dialog>
+
+<dialog id="private-unlock-dialog" class="modal private-pin-panel" aria-labelledby="private-unlock-title">
+  <div class="modal-heading">
+    <h2 id="private-unlock-title">Разблокировать сохранённые записки</h2>
+    <button id="private-unlock-close" type="button" class="close-btn" data-close="private-unlock-dialog" aria-label="Закрыть">×</button>
+  </div>
+  <form id="private-unlock-form">
+    <p id="private-setup-hint" class="small-note" hidden>Задайте отдельную фразу из 16 или более символов. Сохраните её отдельно: фраза восстановления кошелька не открывает метки.</p>
+    <p id="private-upgrade-hint" class="small-note" hidden>Сохранённые метки будут перешифрованы. Код получателя обновится, поэтому для непрочитанных сообщений понадобится запросить новый код метки.</p>
+    <label class="field-label" for="private-passphrase">Фраза доступа к меткам</label>
+    <input id="private-passphrase" class="text-input" type="password" autocomplete="current-password" maxlength="256" required>
+    <div id="private-confirm-fields" hidden>
+      <label class="field-label" for="private-passphrase-confirm">Повторите фразу</label>
+      <input id="private-passphrase-confirm" class="text-input" type="password" autocomplete="new-password" maxlength="256">
+      <button id="private-generate-passphrase" type="button" class="text-btn">Сгенерировать фразу</button>
+    </div>
+    <p id="private-unlock-status" class="form-error" role="alert"></p>
+    <button id="private-unlock-button" class="primary" type="submit">Разблокировать</button>
+  </form>
+</dialog>
+
+<dialog id="private-share-dialog" class="modal private-pin-panel" aria-labelledby="private-share-title">
+  <div class="modal-heading">
+    <h2 id="private-share-title">Поделиться закрытой меткой</h2>
+    <button type="button" class="close-btn" data-close="private-share-dialog" aria-label="Закрыть">×</button>
+  </div>
+  <form id="private-share-form">
+    <label class="field-label" for="private-recipient-code">Код получателя</label>
+    <p id="private-recipient-hint" class="small-note">Попросите получателя нажать «Получить закрытую метку» в верхней панели карты и скопировать «Ваш код получателя».</p>
+    <textarea id="private-recipient-code" rows="2" maxlength="700" required autocomplete="off" spellcheck="false" dir="ltr" aria-describedby="private-recipient-hint"></textarea>
+    <button id="private-share-button" class="primary" type="submit">Зашифровать для получателя</button>
+  </form>
+  <div id="private-share-output" hidden>
+    <label class="field-label" for="private-share-code">Зашифрованный код метки</label>
+    <textarea id="private-share-code" rows="3" readonly spellcheck="false" dir="ltr"></textarea>
+    <button id="copy-private-share" class="secondary" type="button">Копировать</button>
+    <p class="small-note">Отправьте зашифрованный код обратно. Получатель вставит его в поле «Код полученной метки» в том же кошельке, где скопировал свой код.</p>
+  </div>
+  <p id="private-share-status" class="small-note" role="status"></p>
+</dialog>

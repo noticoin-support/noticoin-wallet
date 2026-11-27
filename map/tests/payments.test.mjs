@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {evaluatePayment,atomic,PRICE_ATOMIC} from '../server/api.mjs';
+const tx=(n,amount=PRICE_ATOMIC,confirmations=0)=>({txid:n.toString(16).padStart(64,'0'),amount,confirmations,height:confirmations?100:0,type:confirmations?'in':'pool',unlock_time:0});
+test('mempool is observed but cannot be confirmed',()=>assert.equal(evaluatePayment({pool:[tx(1)]}).status,'seen'));
+test('one inclusion is not three confirmations',()=>{assert.equal(evaluatePayment({in:[tx(1,PRICE_ATOMIC,1)]}).status,'included');assert.equal(evaluatePayment({in:[tx(1,PRICE_ATOMIC,3)]}).status,'confirmed')});
+test('partial payments are counted at their actual confirmation level',()=>{const amount=String(BigInt(PRICE_ATOMIC)/2n);assert.equal(evaluatePayment({in:[tx(1,amount,5)],pool:[tx(2,amount)]}).status,'seen');assert.equal(evaluatePayment({in:[tx(1,amount,5),tx(2,amount,2)]}).status,'included');assert.equal(evaluatePayment({in:[tx(1,amount,5),tx(2,amount,3)]}).status,'confirmed')});
+test('pool and canonical duplicate are never counted twice',()=>{const amount=String(BigInt(PRICE_ATOMIC)/2n);assert.equal(evaluatePayment({in:[tx(1,amount,3)],pool:[tx(1,amount)]}).status,'awaiting')});
+test('a reorganization can downgrade a previously paid invoice',()=>{assert.equal(evaluatePayment({in:[tx(1,PRICE_ATOMIC,3)]}).status,'confirmed');assert.equal(evaluatePayment({in:[],pool:[tx(1)]}).status,'seen');assert.equal(evaluatePayment({in:[],pool:[]}).status,'awaiting')});
+test('unsafe numeric atomic amounts are rejected without rounding',()=>{assert.throws(()=>atomic(Number.MAX_SAFE_INTEGER+1));assert.equal(atomic('18446744073709551615'),18446744073709551615n)});
+test('locked for spending is independent of payment confirmation',()=>assert.equal(evaluatePayment({in:[{...tx(1,PRICE_ATOMIC,3),locked:true}]}).status,'confirmed'));
+test('time-locked and known double-spent transfers do not pay an invoice',()=>{assert.equal(evaluatePayment({in:[{...tx(1,PRICE_ATOMIC,3),unlock_time:999999999}]}).status,'awaiting');assert.equal(evaluatePayment({pool:[{...tx(1),double_spend_seen:true}]}).status,'awaiting')});

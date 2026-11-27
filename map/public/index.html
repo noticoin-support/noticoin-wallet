@@ -1,0 +1,171 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090d17"><meta name="description" content="Noticoin — живые сообщения на карте мира. От целой планеты до любимого переулка."><title>Noticoin — ты здесь</title><link rel="icon" href="/noticoin.png" type="image/png"><link rel="stylesheet" href="/maplibre-gl.css"><link rel="stylesheet" href="/style.css?v=2"><link rel="stylesheet" href="/notes.css"><script defer src="/maplibre-gl.js"></script><script defer src="/qrcode.min.js"></script><script defer src="/map-icons.js"></script><script defer src="/pin-catalog.js"></script><script defer src="/public-notes.js"></script><script defer src="/map-runtime.js?v=2"></script><script defer src="/app.js?v=2"></script></head><body>
+<div class="space" aria-hidden="true"></div><div id="map" aria-label="Интерактивная карта мира"></div>
+<header class="topbar"><a class="brand" href="/" aria-label="Noticoin, на главную"><img src="/noticoin.png" alt="" width="31" height="31"><span>Noticoin</span></a><nav class="nav" aria-label="Вид карты"><button class="nav-item active" data-view="all">Весь мир</button><button class="nav-item" data-view="mine">Мои точки</button><button class="nav-item" data-view="saved">Сохранённые</button></nav><div class="header-end"><span id="network" class="network">Карта без границ</span><button id="create" class="primary"><span class="plus">+</span> Оставить точку</button></div></header>
+<div class="search-wrap"><form id="search-form" role="search"><span class="search-icon" aria-hidden="true">⌕</span><input id="search" aria-label="Найти город или сообщение" placeholder="Город, место или сообщение" autocomplete="off"><kbd>↵</kbd><button type="button" id="clear-search" class="icon-btn" aria-label="Очистить поиск" hidden>×</button></form><div id="search-results" class="search-results" hidden></div></div>
+<aside class="explorer" aria-label="Точки на карте"><div class="explorer-head"><div class="eyebrow"><span class="small-flower">✳</span> ЗДЕСЬ КТО-ТО БЫЛ</div><h1>У каждого места<br>есть голос<span>.</span></h1><p>Оставь мысль. Поделись местом.<br>Найди своих где угодно.</p></div><div class="filter-label">ИССЛЕДУЙ ПО-СВОЕМУ</div><div id="filters" class="filters" aria-label="Категория"><button data-category="all" class="chip active">Всё</button><button data-category="message" class="chip">Сообщения</button><button data-category="place" class="chip">Места</button><button data-category="event" class="chip">События</button><button data-category="art" class="chip">Искусство</button><button data-category="wifi" class="chip">Wi-Fi</button></div><div class="list-heading"><span id="list-title">В объективе</span><span id="point-count">0 точек</span></div><div id="point-list" class="point-list"><p class="empty">Подготавливаем планету…</p></div><div class="explorer-footer"><button id="about" class="text-btn" aria-label="О карте и подтверждениях">Как это работает?</button></div></aside>
+<div id="map-status" class="map-status" role="status">Загружаем мир…</div>
+<button id="map-quality" class="map-quality secondary" type="button" aria-pressed="false">Детальнее</button><div class="map-tools" aria-label="Управление картой"><button id="planet" title="Вся планета" aria-label="Отдалить до планеты">◎</button><div class="tool-separator"></div><button id="zoom-in" title="Приблизить" aria-label="Приблизить">+</button><button id="zoom-out" title="Отдалить" aria-label="Отдалить">−</button><div class="tool-separator"></div><button id="locate" title="Моё местоположение" aria-label="Показать моё местоположение">⌖</button><button id="compass" title="Север сверху" aria-label="Север сверху">♧</button></div>
+<div class="map-footer"><div class="world-label"><span class="orbit-dot"></span><span>ОДНА ПЛАНЕТА. МНОГО ИСТОРИЙ.</span></div><div class="coordinates"><span id="zoom-label">Планета</span><button id="copy-map-coordinates" class="coordinate-button" type="button" title="Скопировать координаты" aria-label="Скопировать координаты" disabled><span id="coordinates"></span></button></div></div>
+<div id="placement" class="placement" hidden><div><strong>Выбери своё «здесь»</strong><span>Нажми на карту или передвинь метку</span></div><button id="placement-cancel" class="secondary">Отмена</button><button id="placement-next" class="primary">Это место</button></div>
+<section id="detail" class="detail" aria-label="Выбранная точка" hidden><button id="detail-close" class="close-btn" aria-label="Закрыть точку">×</button><div id="detail-content"></div></section>
+<dialog id="compose" class="modal" aria-labelledby="compose-title">
+ <form id="compose-form">
+  <div class="modal-heading"><h2 id="compose-title">Новая точка</h2><button id="compose-close" type="button" class="close-btn compose-close" data-close="compose" title="Закрыть" aria-label="Закрыть">×</button></div>
+  <fieldset id="private-pin-option" class="pin-visibility" hidden>
+   <legend class="field-label">Видимость метки</legend>
+   <div class="visibility-options">
+    <label><input type="radio" name="pin-visibility" value="public" checked>
+     <span class="visibility-tile"><span class="visibility-icon" id="visibility-public-icon"></span><span><strong>Публичная</strong><small>На общей карте</small></span></span>
+    </label>
+    <label><input type="radio" name="pin-visibility" value="private" id="private-pin">
+     <span class="visibility-tile"><span class="visibility-icon" id="visibility-private-icon"></span><span><strong>Только Shared pin</strong><small>Только получателю</small></span></span>
+    </label>
+   </div>
+   <p id="private-pin-hint" class="small-note" hidden>Хранится в этом кошельке 7 дней. Поделиться можно по коду получателя.</p>
+  </fieldset>
+  <div id="manual-coordinates" class="note-fields">
+   <div>
+    <label class="field-label" for="pin-latitude">Широта</label>
+    <input class="text-input" id="pin-latitude" inputmode="decimal" maxlength="24" autocomplete="off" spellcheck="false" placeholder="35.659500">
+   </div>
+   <div>
+    <label class="field-label" for="pin-longitude">Долгота</label>
+    <input class="text-input" id="pin-longitude" inputmode="decimal" maxlength="24" autocomplete="off" spellcheck="false" placeholder="139.701700">
+   </div>
+  </div>
+  <div class="compose-coordinate-row">
+   <button id="change-location" type="button" class="secondary">Выбрать на карте</button>
+   <p id="attached-location" class="location-field" hidden></p>
+   <button id="copy-compose-coordinates" class="coordinate-button coordinate-icon-button" type="button" title="Скопировать координаты" aria-label="Скопировать координаты"></button>
+  </div>
+  <div class="note-fields">
+   <div>
+    <label class="field-label" for="pin-category">Категория</label>
+    <select class="text-input note-select" id="pin-category" name="category"><button type="button"><selectedcontent></selectedcontent></button></select>
+   </div>
+   <div id="compose-icon-field">
+    <label class="field-label" for="pin-icon">Значок точки</label>
+    <select class="text-input note-select" id="pin-icon" name="icon"><button type="button"><selectedcontent></selectedcontent></button></select>
+   </div>
+  </div>
+  <div id="sale-setup">
+   <label class="note-toggle"><input type="checkbox" id="sell-note"><span>Продавать доступ к записке</span></label>
+  </div>
+  <div id="secret-options" hidden>
+   <label class="field-label" for="secret-price">Цена открытия текста в Noticoin</label>
+   <input class="text-input" id="secret-price" name="secretPrice" inputmode="decimal" maxlength="20" placeholder="0.10">
+   <label class="field-label" for="secret-copies">Количество копий</label>
+   <input class="text-input" id="secret-copies" name="secretCopies" type="number" min="1" max="100" step="1" value="1">
+   <p class="small-note">Метка видна, пока есть копии. Покупатель получит записку после трёх подтверждений, даже если ваш кошелёк закрыт.</p>
+  </div>
+  <label class="field-label" for="title">Название метки</label>
+  <input class="text-input" id="title" name="title" maxlength="64" minlength="2" required placeholder="Например: здесь особенно хорош закат" aria-describedby="pin-title-hint">
+  <p id="pin-title-hint" class="small-note">Короткое название, которое видно при выборе метки на карте.</p>
+  <label class="field-label" for="body">Твоё сообщение</label>
+  <textarea id="body" name="body" maxlength="500" rows="3" required placeholder="Расскажи то, что стоит оставить в этом месте…"></textarea>
+  <div class="text-counter"><span>Без имени и регистрации</span><span id="character-count">0 / 500</span></div>
+  <div class="plans" id="publication-plans">
+   <label class="plan"><input type="radio" name="mode" value="free" checked><div><strong>На карте 7 дней</strong></div><b id="seven-day-price"></b></label>
+   <label class="plan"><input type="radio" name="mode" value="paid"><div><strong>На карте 30 дней</strong></div><b id="extended-price"></b></label>
+  </div>
+  <div id="donation-setup">
+   <label class="note-toggle"><input type="checkbox" id="accept-donations"><span>Принимать донаты</span></label>
+   <div id="donation-options" hidden>
+    <p class="small-note">Донаты добровольные. Отправитель сам выбирает сумму.</p>
+    <label class="field-label" for="donation-address">Адрес Noticoin для донатов</label>
+    <div class="donation-address-row">
+     <select class="text-input note-select" id="donation-address" name="donationAddress" aria-describedby="donation-address-preview donation-address-status"><button type="button"><selectedcontent></selectedcontent></button>
+      <option value="">Выберите адрес кошелька</option>
+     </select>
+     <button class="secondary" id="new-donation-address" type="button">Создать субадрес</button>
+    </div>
+    <p class="small-note donation-address-preview" id="donation-address-preview" dir="ltr" hidden></p>
+    <p class="small-note" id="donation-address-status" role="status" hidden></p>
+    <label class="field-label" for="donation-note">На что пойдут донаты (необязательно)</label>
+    <input class="text-input" id="donation-note" name="donationNote" maxlength="140">
+    <label class="field-label" for="donation-amount">Предложенная сумма в Noticoin (необязательно)</label>
+    <input class="text-input" id="donation-amount" name="donationAmount" inputmode="decimal" maxlength="20" placeholder="0.50">
+    <p class="small-note">Адрес увидят все. Донаты поступят на этот адрес.</p>
+   </div>
+  </div>
+ <p id="public-note-hint" class="small-note" hidden>Любой посетитель карты может открыть текст этой записки.</p>
+ <p id="encrypted-note-hint" class="small-note">Текст зашифрован. На общей карте видны заголовок и координаты.</p>
+ <p id="payment-availability" class="small-note"></p>
+  <p id="compose-error" class="form-error" role="alert"></p>
+  <div class="note-publish"><span id="publication-price"><span>Цена публикации</span><strong id="publication-total">0 Noticoin</strong></span><button id="publish" class="primary" type="submit">Оставить точку</button></div>
+ </form>
+</dialog>
+<div class="map-notices">
+ <aside id="map-payment-status" class="map-payment-status" hidden>
+  <div role="status"><strong id="map-payment-heading"></strong><p id="map-payment-detail"></p></div>
+  <button id="map-payment-open" class="secondary" type="button">Открыть счёт</button>
+ </aside>
+ <aside id="map-receipt-status" class="map-payment-status map-receipt-status" hidden>
+  <div role="status"><strong>Оплата подтверждена · записка готова</strong><p id="map-receipt-title"></p></div>
+  <div class="receipt-actions">
+   <button id="map-receipt-open" class="secondary" type="button">Открыть записку</button>
+   <button id="map-receipt-close" class="secondary" type="button">Закрыть</button>
+  </div>
+ </aside>
+</div>
+<dialog id="invoice-list" class="modal map-panel-dialog" aria-labelledby="invoice-list-heading">
+ <div class="modal-heading map-panel-heading">
+  <button id="invoice-list-back" type="button" class="secondary panel-icon-button" aria-label="К счетам карты" title="К счетам карты" hidden></button>
+  <h2 id="invoice-list-heading" tabindex="-1">Счета карты</h2>
+  <button type="button" class="close-btn" data-close="invoice-list" aria-label="Закрыть">×</button>
+ </div>
+ <p id="invoice-list-status" class="map-panel-frame small-note" role="status" hidden></p>
+ <div id="invoice-overview" class="map-panel-stack">
+  <button id="open-purchases" class="secondary map-panel-frame invoice-destination" type="button" aria-controls="purchases-section">
+   <span>Купленные записки</span><span id="purchased-note-count" class="invoice-count" hidden></span>
+  </button>
+  <section class="map-panel-frame" aria-labelledby="pending-invoices-title">
+   <h3 id="pending-invoices-title">Текущие счета</h3>
+   <div id="pending-invoices" class="invoice-entries"></div>
+   <p id="pending-invoices-empty" class="small-note">Текущих счетов нет.</p>
+  </section>
+  <section id="sales-section" class="map-panel-frame" hidden><h3>Проданные записки</h3><div id="sold-notes" class="invoice-entries"></div></section>
+ </div>
+ <section id="purchases-section" class="map-panel-frame" aria-labelledby="invoice-list-heading" hidden>
+  <div id="purchased-notes" class="invoice-entries"></div>
+  <p id="purchases-empty" class="small-note">Купленных записок пока нет.</p>
+ </section>
+</dialog>
+<dialog id="invoice" class="modal invoice-modal" aria-labelledby="invoice-heading">
+ <div class="modal-heading"><h2 id="invoice-heading">Оплата публикации</h2><button type="button" class="close-btn" data-close="invoice" aria-label="Закрыть">×</button></div>
+ <div id="invoice-payment">
+  <p class="small-note" id="invoice-deadline"></p>
+  <div id="qr" class="qr"></div>
+  <div class="invoice-amount"><strong id="invoice-amount"></strong> <span>Noticoin</span></div>
+  <button id="copy-address" class="address-copy" type="button" title="Скопировать адрес"><span id="invoice-address"></span><span>Копировать</span></button>
+  <a id="wallet-link" class="secondary full">Открыть кошелёк</a>
+ </div>
+ <div class="payment-progress"><div id="payment-progress-bar"></div></div>
+ <p id="invoice-status" class="invoice-status" role="status">Ожидаем платёж</p>
+ <button id="check-invoice" class="text-btn full" type="button">Проверить сейчас</button>
+ <button id="read-secret" class="primary full" type="button" hidden>Открыть записку</button>
+</dialog>
+<dialog id="purchased-note" class="modal map-panel-dialog" aria-labelledby="purchased-note-title">
+ <div class="modal-heading map-panel-heading">
+  <button id="purchased-note-back" type="button" class="secondary panel-icon-button" aria-label="К купленным запискам" title="К купленным запискам" hidden></button>
+  <h2 id="purchased-note-title">Купленная записка</h2>
+  <button type="button" class="close-btn" data-close="purchased-note" aria-label="Закрыть">×</button>
+ </div>
+ <div class="map-panel-frame note-reader">
+  <p id="purchased-note-status" class="small-note" role="status"></p>
+  <p id="purchased-note-body" class="detail-body purchased-note-text" hidden></p>
+  <button id="retry-note" class="secondary" type="button" hidden>Повторить</button>
+ </div>
+</dialog>
+<dialog id="about-modal" class="modal map-panel-dialog" aria-labelledby="about-heading">
+ <div class="modal-heading map-panel-heading"><h2 id="about-heading">Мир становится ближе.</h2><button type="button" class="close-btn" data-close="about-modal" aria-label="Закрыть">×</button></div>
+ <div class="map-panel-stack about-copy">
+  <section class="map-panel-frame"><h3>Управление картой</h3><p>Колёсико мыши или жест двумя пальцами приближает карту от планеты до улицы. Кнопка ◎ возвращает весь мир.</p></section>
+  <section class="map-panel-frame"><h3>Точка — это маленькая история</h3><p>Выбери место, напиши сообщение и оставь его бесплатно на 7 дней. Платная точка за 0,1 Noticoin остаётся на 30 дней после оплаты.</p></section>
+  <section class="map-panel-frame"><h3>Подтверждения без магии</h3><p>«Замечен» — кошелёк увидел платёж. «В блоке» — платёж включён в цепочку. «Подтверждён» — получено минимум 3 подтверждения. При реорганизации статус может измениться. Голоса «Я был здесь» — мнения посетителей, а не проверка блокчейна.</p></section>
+  <section class="map-panel-frame"><h3>Твоё имя не требуется</h3><p>Браузер создаёт локальный ключ автора. Сохрани резервную копию браузера: после очистки данных возможность удалить свою точку пропадёт. У платных точек есть отдельные адреса оплаты.</p></section>
+  <p class="map-panel-frame small-note">Картография: OpenFreeMap, OpenMapTiles и OpenStreetMap. Движок: MapLibre GL JS.</p>
+ </div>
+</dialog>
+<div id="toast" class="toast" role="status" hidden></div><noscript><p class="no-js">Для интерактивной карты включите JavaScript.</p></noscript>
+</body></html>

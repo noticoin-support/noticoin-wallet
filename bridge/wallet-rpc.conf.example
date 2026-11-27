@@ -1,0 +1,10 @@
+# Copy outside the source directory and replace paths and secrets.
+wallet-file=C:\NOTICOIN-data\map-wallet
+password-file=C:\NOTICOIN-data\wallet-password.txt
+daemon-address=http://127.0.0.1:19081
+rpc-bind-ip=127.0.0.1
+rpc-bind-port=19083
+rpc-login=noticoin-map:REPLACE_WITH_RANDOM_RPC_PASSWORD
+trusted-daemon=1
+non-interactive=1
+log-level=0

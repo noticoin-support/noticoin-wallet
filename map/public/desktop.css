@@ -1,0 +1,489 @@
+.wallet-map {
+  --atlas-surface: #111a2e;
+  --atlas-field: #0d1528;
+  --atlas-border: #334160;
+  --atlas-ink: #edf1ff;
+  --atlas-muted: #aab9d6;
+  --atlas-blue: #b5c2ff;
+  --atlas-selected: #243354;
+  color-scheme: dark;
+}
+.wallet-map [hidden] { display: none !important; }
+.wallet-map body {
+  background: #070b16;
+  color: var(--atlas-ink);
+  font-family: "Segoe UI", sans-serif;
+}
+.wallet-map .space, .wallet-map #map { position: absolute; inset: 0; }
+.wallet-map .space { background: #060914 url("/atlas/deep-space.jpg") center / cover no-repeat; }
+.wallet-map #map::after { content: none; }
+.wallet-map .search-wrap input::placeholder, .wallet-map .modal ::placeholder { color: #99a8c3; }
+.wallet-map button:focus-visible, .wallet-map a:focus-visible,
+.wallet-map input:focus-visible, .wallet-map textarea:focus-visible {
+  outline: 2px solid var(--atlas-blue);
+  outline-offset: 2px;
+}
+.wallet-map .primary {
+  background: var(--atlas-blue);
+  color: #111834;
+  border-radius: 0;
+  box-shadow: none;
+}
+.wallet-map .primary:hover { background: #cad2ff; transform: none; }
+.wallet-map .secondary {
+  color: var(--atlas-ink);
+  background: var(--atlas-field);
+  border: 1px solid var(--atlas-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+.wallet-map .secondary:hover { background: var(--atlas-selected); color: var(--atlas-blue); }
+.wallet-map button:disabled { opacity: .58; cursor: default; }
+.wallet-map #search-form, .wallet-map .text-input, .wallet-map textarea,
+.wallet-map .composer-categories span, .wallet-map .plan {
+  transition: border-color 160ms ease-out, background-color 160ms ease-out, color 160ms ease-out;
+}
+.wallet-map #search-form:focus-within, .wallet-map .text-input:focus, .wallet-map textarea:focus {
+  border-color: var(--atlas-blue);
+  outline: none;
+}
+.wallet-map #search:focus-visible { outline: none; }
+.wallet-map .composer-categories input:focus-visible + span,
+.wallet-map .demo-switch input:focus-visible + .switch {
+  outline: 2px solid var(--atlas-blue);
+  outline-offset: 2px;
+}
+.wallet-map .plan:focus-within { border-color: var(--atlas-blue); }
+.wallet-map .notice-modal { width: min(410px, calc(100vw - 28px)); padding: 24px; }
+.wallet-map .notice-modal h2 { font-size: 20px; margin: 0 0 10px; }
+.wallet-map .notice-modal p { overflow-wrap: anywhere; }
+.wallet-map .notice-actions { display: flex; flex-wrap: wrap; justify-content: end; gap: 8px; margin-top: 20px; }
+.wallet-map .venue-modal { width: min(530px, calc(100vw - 28px)); padding: 24px; }
+.wallet-map .venue-modal .modal-heading { margin-bottom: 8px; }
+.wallet-map .venue-modal h2 { margin: 0; overflow-wrap: anywhere; }
+.wallet-map .venue-summary { margin: 0 0 18px; color: var(--atlas-blue); font-weight: 650; }
+.wallet-map .venue-rating { margin: 0; padding: 0; border: none; min-width: 0; }
+.wallet-map .venue-rating legend { padding: 0; color: var(--atlas-muted); font-size: 13px; }
+.wallet-map .venue-stars { display: flex; gap: 7px; margin-top: 8px; }
+.wallet-map .venue-stars label { cursor: pointer; }
+.wallet-map .venue-stars input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.wallet-map .venue-stars span {
+  display: grid; place-items: center; width: 38px; height: 37px;
+  color: var(--atlas-muted); background: var(--atlas-field);
+  border: 1px solid var(--atlas-border); font-size: 22px;
+  transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease;
+}
+.wallet-map .venue-stars label[data-selected="true"] span, .wallet-map .venue-stars label:hover span {
+  color: #ffcf85; background: #362d29; border-color: #8a6847;
+}
+.wallet-map .venue-stars input:focus-visible + span { outline: 2px solid var(--atlas-blue); outline-offset: 2px; }
+.wallet-map .venue-submit { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.wallet-map .venue-reviews { margin-top: 16px; max-height: 36vh; overflow-y: auto; }
+.wallet-map .venue-reviews:empty { display: none; }
+.wallet-map .venue-reviews article { border-top: 1px solid var(--atlas-border); padding: 10px 0; }
+.wallet-map .venue-reviews header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.wallet-map .venue-reviews p { margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; }
+.wallet-map .venue-review-stars { color: #ffcf85; letter-spacing: 2px; }
+.wallet-map.atlas-light .venue-stars label[data-selected="true"] span,
+.wallet-map.atlas-light .venue-stars label:hover span { color: #80510e; background: #fff0d5; border-color: #cbad76; }
+.wallet-map.atlas-light .venue-review-stars { color: #80510e; }
+
+.atlas-toolbar {
+  position: absolute;
+  z-index: 5;
+  inset: 18px 18px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  pointer-events: none;
+}
+.wallet-map .search-wrap {
+  position: relative;
+  inset: auto;
+  z-index: 1;
+  width: min(365px, 54%);
+  min-width: 0;
+  transform: none;
+  pointer-events: auto;
+}
+.wallet-map #search-form, .wallet-map .search-results {
+  background: var(--atlas-surface);
+  border: 1px solid var(--atlas-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+.wallet-map .search-result { border: 1px solid transparent; border-radius: 0; }
+.wallet-map .search-result:hover, .wallet-map .search-result:focus-visible {
+  background: var(--atlas-selected);
+  border-color: var(--atlas-border);
+  outline: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .wallet-map .search-results:not([hidden]), .wallet-map:not(.atlas-docked) .explorer:not([hidden]) {
+    animation: atlas-menu-in 155ms cubic-bezier(.2, .7, .3, 1) both;
+  }
+  .wallet-map .search-result { transition: background-color 125ms ease, border-color 125ms ease; }
+}
+@keyframes atlas-menu-in {
+  from { opacity: .45; translate: 0 -5px; }
+  to { opacity: 1; translate: 0 0; }
+}
+.wallet-map #search-form { height: 48px; gap: 12px; padding: 0 15px; }
+.wallet-map .search-icon {
+  position: relative;
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+  border: 1.6px solid #a2b2d2;
+  border-radius: 50%;
+}
+.wallet-map .search-icon::after {
+  position: absolute;
+  width: 6px;
+  height: 1.6px;
+  background: #a2b2d2;
+  content: "";
+  right: -4px;
+  bottom: -2px;
+  transform: rotate(45deg);
+}
+.wallet-map #search { font-size: 14px; padding: 0; color: var(--atlas-ink); }
+.wallet-map .search-result { color: var(--atlas-ink); }
+.wallet-map .search-result:hover { background: var(--atlas-selected); }
+.wallet-map #atlas-city-toggle {
+  flex: 0 0 31px;
+  height: 31px;
+  border-radius: 0;
+  border: 1px solid #6b5431;
+  background: #352c21;
+  color: #ffda84;
+  font-size: 17px;
+}
+.wallet-map #atlas-city-toggle[aria-expanded="true"], .wallet-map #atlas-city-toggle:hover {
+  background: #504029;
+}
+.wallet-map .atlas-search-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.wallet-map .atlas-search-row .search-result { flex: 1; min-width: 0; }
+.wallet-map .atlas-favorite-star {
+  margin-right: 5px;
+  flex: 0 0 31px;
+  height: 30px;
+  border-radius: 0;
+  color: #aab9d6;
+  font-size: 19px;
+}
+.wallet-map .atlas-favorite-star[aria-pressed="true"] { color: #ffda84; background: #352c21; }
+.wallet-map .atlas-favorite-star:hover { color: #ffe5a7; background: #504029; }
+.wallet-map #atlas-cities h2 {
+  padding: 8px 8px 9px;
+  margin: 0;
+  color: var(--atlas-ink);
+  border-bottom: 1px solid var(--atlas-border);
+  font-size: 13px;
+}
+.wallet-map #atlas-cities .empty { padding: 12px 8px; }
+.atlas-actions { display: flex; gap: 8px; pointer-events: auto; flex: none; }
+.wallet-map .atlas-actions button { height: 48px; padding: 0 16px; font-size: 14px; }
+.atlas-utility { display: flex; border: 1px solid var(--atlas-border); background: var(--atlas-surface); }
+.wallet-map .atlas-actions .atlas-tool-icon { display: grid; place-items: center; width: 43px; height: 46px; padding: 0; border: 0; background: transparent; }
+.wallet-map .atlas-actions .atlas-tool-icon + .atlas-tool-icon { border-left: 1px solid var(--atlas-border); }
+.wallet-map .atlas-actions .atlas-tool-icon:hover { color: var(--atlas-blue); background: var(--atlas-selected); }
+.atlas-tool-icon .noticoin-map-icon { width: 19px; height: 19px; }
+.wallet-map .atlas-actions #atlas-points { background: var(--atlas-surface); }
+.wallet-map #atlas-layout { background: var(--atlas-surface); white-space: nowrap; }
+.wallet-map #atlas-layout[aria-pressed="true"] { color: var(--atlas-blue); background: var(--atlas-selected); }
+.wallet-map .atlas-actions #atlas-points[aria-expanded="true"] { color: var(--atlas-blue); background: var(--atlas-selected); }
+#atlas-count {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 6px;
+  border-radius: 0;
+  background: var(--atlas-selected);
+  color: var(--atlas-blue);
+  font-size: 11px;
+}
+.wallet-map #create span { font-size: 18px; line-height: 1; }
+
+.wallet-map .explorer, .wallet-map .detail {
+  position: absolute;
+  width: min(350px, calc(100% - 80px));
+  height: auto;
+  max-width: none;
+  max-height: calc(100% - 138px);
+  background: var(--atlas-surface);
+  border: 1px solid var(--atlas-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+.wallet-map .explorer {
+  display: flex;
+  inset: 78px 18px auto auto;
+  z-index: 4;
+  flex-direction: column;
+  overflow: hidden;
+}
+.atlas-panel-heading { position: relative; padding: 16px 47px 10px 16px; }
+.atlas-panel-heading h2 { margin: 0; font-size: 17px; font-weight: 650; }
+.wallet-map .close-btn { color: var(--atlas-muted); }
+.wallet-map .close-btn:hover { background: var(--atlas-selected); color: var(--atlas-ink); }
+.wallet-map .explorer .nav {
+  display: flex;
+  order: 0;
+  width: auto;
+  justify-content: space-between;
+  margin: 0 12px;
+  padding: 4px;
+  gap: 4px;
+  background: var(--atlas-field);
+  border: 1px solid var(--atlas-border);
+  border-radius: 0;
+}
+.wallet-map .nav-item { flex: 1; padding: 7px 4px; color: var(--atlas-muted); font-size: 12px; }
+.wallet-map .nav-item.active { background: var(--atlas-selected); color: var(--atlas-blue); }
+.wallet-map .filters {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  padding: 11px 12px 7px;
+  gap: 5px;
+}
+.wallet-map .chip { font-size: 11px; padding: 5px 8px; color: var(--atlas-muted); background: var(--atlas-field); border-color: var(--atlas-border); }
+.wallet-map .chip.active { color: var(--atlas-blue); background: var(--atlas-selected); border-color: #536eaf; }
+.wallet-map .list-heading { margin: 0 12px; padding: 9px 2px 7px; font-size: 12px; border-color: var(--atlas-border); }
+.wallet-map .list-heading > span:last-child { margin: 0; color: var(--atlas-muted); }
+.wallet-map .point-list { padding: 2px 6px; min-height: 0; overscroll-behavior: contain; }
+.wallet-map .point-row { padding: 9px; gap: 10px; border-radius: 0; color: var(--atlas-ink); }
+.wallet-map .point-row:hover, .wallet-map .point-row.active { background: var(--atlas-selected); }
+.wallet-map .point-row strong { font-size: 13px; }
+.wallet-map .point-row p { display: none; }
+.wallet-map .point-meta { color: var(--atlas-muted); }
+.wallet-map .point-meta b { color: var(--atlas-blue); }
+.wallet-map .demo-switch input:checked + .switch { background: #344875; }
+.wallet-map .demo-switch input:checked + .switch::before { background: var(--atlas-blue); }
+
+.wallet-map .detail { inset: auto auto 60px 18px; z-index: 5; overflow: auto; padding: 16px; }
+.wallet-map .detail h2 { margin: 7px 20px 7px 0; font-size: 19px; letter-spacing: -.2px; }
+.wallet-map .detail-body { margin: 0; max-height: 170px; overflow: auto; color: var(--atlas-ink); font-size: 14px; line-height: 1.55; }
+.wallet-map .detail-coords { margin: 9px 0 6px; color: var(--atlas-muted); }
+.wallet-map .detail-category { color: var(--atlas-blue); font-size: 12px; }
+.wallet-map .detail-actions { gap: 8px; margin-top: 12px; padding-top: 12px; border-color: var(--atlas-border); }
+.wallet-map .detail-actions button { min-height: 35px; }
+.wallet-map .detail .small-note { margin: 9px 0 0; }
+.wallet-map .badge { background: var(--atlas-selected); color: var(--atlas-blue); }
+.wallet-map .badge.confirmed { color: #abe9d2; background: #153d35; }
+
+.wallet-map .map-tools {
+  inset: auto 18px 63px auto;
+  z-index: 3;
+  transform: none;
+  padding: 4px;
+  border-radius: 0;
+  background: var(--atlas-surface);
+  border-color: var(--atlas-border);
+  box-shadow: none;
+}
+.wallet-map .map-tools button {
+  width: 38px;
+  height: 37px;
+  border-radius: 0;
+  font-size: 22px;
+  color: var(--atlas-ink);
+}
+.wallet-map .map-tools button:hover, .wallet-map .map-tools [aria-pressed="true"] {
+  background: var(--atlas-selected);
+  color: var(--atlas-blue);
+}
+.wallet-map .map-tools #map-quality { font-size: 13px; font-weight: 700; }
+.wallet-map .tool-separator { background: var(--atlas-border); }
+.atlas-controls, .wallet-map .map-footer {
+  position: absolute;
+  z-index: 3;
+  bottom: 18px;
+  display: flex;
+  gap: 7px;
+}
+.atlas-controls { right: 18px; }
+.wallet-map .map-footer { left: 18px; right: auto; }
+.wallet-map .atlas-controls button, .wallet-map .coordinates {
+  min-height: 32px;
+  padding: 5px 10px;
+  color: var(--atlas-ink);
+  background: var(--atlas-surface);
+  border: 1px solid var(--atlas-border);
+  border-radius: 0;
+  font-size: 11px;
+}
+.wallet-map .coordinates { gap: 4px; padding-block: 3px; }
+.wallet-map #zoom-label { color: var(--atlas-ink); font-weight: 650; }
+.wallet-map #coordinates { color: var(--atlas-muted); }
+.atlas-feedback {
+  position: absolute;
+  z-index: 3;
+  max-width: min(440px, calc(100% - 95px));
+}
+.atlas-feedback { inset: 74px auto auto 18px; display: grid; gap: 6px; }
+.wallet-map .map-status { position: static; max-width: none; transform: none; border-radius: 0; font-size: 12px; }
+.wallet-map #retry-streets { justify-self: start; background: var(--atlas-surface); font-size: 12px; min-height: 35px; }
+.wallet-map .atlas-feedback:empty { display: none; }
+
+.wallet-map .modal { border-radius: 0; background: var(--atlas-surface); color: var(--atlas-ink); border-color: var(--atlas-border); box-shadow: none; }
+.wallet-map .location-field, .wallet-map .address-copy, .wallet-map .text-input,
+.wallet-map textarea, .wallet-map .plan, .wallet-map .composer-categories span {
+  color: var(--atlas-ink); background: var(--atlas-field); border-color: var(--atlas-border); border-radius: 0;
+}
+.wallet-map .nav-item, .wallet-map .badge, .wallet-map .chip, .wallet-map .point-symbol,
+.wallet-map .close-btn, .wallet-map .qr { border-radius: 0; }
+.donation-action { margin-top: 12px; }
+.wallet-map .plan:has(input:checked), .wallet-map .composer-categories input:checked + span {
+  background: var(--atlas-selected); border-color: #7086c1; color: var(--atlas-blue);
+}
+.wallet-map .plan b, .wallet-map .location-field small, .wallet-map .text-btn,
+.wallet-map .address-copy span:last-child { color: var(--atlas-blue); }
+.wallet-map .plan input[type="radio"], .wallet-map .note-toggle input[type="checkbox"] {
+  appearance: none;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 1px solid var(--atlas-muted);
+  background: var(--atlas-field);
+  cursor: pointer;
+}
+.wallet-map .plan input[type="radio"] { border-radius: 50%; }
+.wallet-map .plan input[type="radio"]:checked,
+.wallet-map .note-toggle input[type="checkbox"]:checked { border-color: var(--atlas-blue); }
+.wallet-map .plan input[type="radio"]:checked::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--atlas-blue);
+}
+.wallet-map .note-toggle input[type="checkbox"]:checked { background: var(--atlas-blue); }
+.wallet-map .note-toggle input[type="checkbox"]:checked::before {
+  content: "";
+  width: 11px;
+  height: 11px;
+  background: var(--atlas-surface);
+  clip-path: polygon(0 52%, 16% 38%, 38% 61%, 84% 14%, 100% 30%, 38% 92%);
+}
+.wallet-map .plan input[type="radio"]:disabled { cursor: default; }
+.wallet-map .field-label, .wallet-map .text-counter, .wallet-map .plan span, .wallet-map .privacy-note,
+.wallet-map .small-note, .wallet-map .muted, .wallet-map .demo-switch, .wallet-map .empty,
+.wallet-map .search-result small, .wallet-map .placement span, .wallet-map .invoice-status,
+.wallet-map .address-copy span:first-child, .wallet-map .about-copy p { color: var(--atlas-muted); }
+.wallet-map .modal .eyebrow { color: var(--atlas-blue); }
+.wallet-map .form-error { color: #ffadb9; }
+.wallet-map .muted strong { color: var(--atlas-blue); }
+.wallet-map .payment-progress { background: var(--atlas-selected); }
+.wallet-map .payment-progress > div { background: var(--atlas-blue); }
+.wallet-map .map-pin { background: #8272fa; border-color: #edf1ff; box-shadow: none; }
+.wallet-map .placement, .wallet-map .toast {
+  inset: auto auto 62px 18px;
+  width: max-content;
+  max-width: calc(100% - 91px);
+  transform: none;
+  background: var(--atlas-surface);
+  color: var(--atlas-ink);
+  border-color: var(--atlas-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+/* Keep these overlays translucent so the compositor doesn't cull the WebGL
+   canvas behind an opaque copy of their bounds. */
+.wallet-map .map-tools, .wallet-map .placement { opacity: .99; }
+.wallet-map .toast { inset: auto auto 61px 50%; transform: translateX(-50%); }
+.wallet-map:has(.detail:not([hidden])) .toast { inset: 78px auto auto 50%; }
+
+.wallet-map.atlas-docked {
+  --atlas-dock-width: clamp(235px, 27vw, 336px);
+  --atlas-dock-gap: 12px;
+  --atlas-dock: calc(var(--atlas-dock-width) + var(--atlas-dock-gap) + 18px);
+}
+.wallet-map.atlas-docked #map, .wallet-map.atlas-docked .space { right: var(--atlas-dock); }
+.wallet-map.atlas-docked .explorer {
+  inset: 78px 18px 18px auto;
+  width: var(--atlas-dock-width);
+  max-height: none;
+}
+.wallet-map.atlas-docked .search-wrap { max-width: calc(100% - var(--atlas-dock) - 23px); }
+.wallet-map.atlas-docked .map-tools, .wallet-map.atlas-docked .atlas-controls {
+  right: calc(var(--atlas-dock) + 16px);
+}
+.wallet-map.atlas-docked .detail { width: min(350px, calc(100% - var(--atlas-dock) - 76px)); }
+.wallet-map.atlas-docked .placement { max-width: calc(100% - var(--atlas-dock) - 72px); }
+.wallet-map.atlas-docked .atlas-feedback {
+  max-width: calc(100% - var(--atlas-dock) - 73px);
+}
+
+.wallet-map.atlas-light {
+  --atlas-surface: #fbfcff;
+  --atlas-field: #f2f6fe;
+  --atlas-border: #bbcbe7;
+  --atlas-ink: #213352;
+  --atlas-muted: #4e6285;
+  --atlas-blue: #405dba;
+  --atlas-selected: #e3ebff;
+  color-scheme: light;
+}
+.wallet-map.atlas-light body { background: #edf2fd; }
+.wallet-map.atlas-light .space { background: #e7eefb url("/atlas/silver-nebula.jpg") center / cover no-repeat; }
+.wallet-map.atlas-light .primary { color: #fff; }
+.wallet-map.atlas-light .primary:hover { background: #324ea8; }
+.wallet-map.atlas-light .search-wrap input::placeholder, .wallet-map.atlas-light .modal ::placeholder { color: #607494; }
+.wallet-map.atlas-light #atlas-city-toggle, .wallet-map.atlas-light .atlas-favorite-star[aria-pressed="true"] {
+  color: #7d4e08;
+  background: #fff0cf;
+  border-color: #d9bb7e;
+}
+.wallet-map.atlas-light #atlas-city-toggle:hover, .wallet-map.atlas-light .atlas-favorite-star:hover { color: #6b4109; background: #f9e2a9; }
+.wallet-map.atlas-light .atlas-favorite-star { color: #566b8d; }
+.wallet-map.atlas-light .badge.confirmed { color: #1d674e; background: #daefe7; }
+.wallet-map.atlas-light .modal::backdrop { background: #27395854; }
+.wallet-map.atlas-light .form-error { color: #9d2949; }
+
+@media (max-width: 920px) {
+  .wallet-map.atlas-docked #coordinates { display: none; }
+  .wallet-map.atlas-docked .placement { flex-wrap: wrap; }
+  .wallet-map.atlas-docked .placement > div { width: 100%; }
+}
+@media (max-width: 620px) {
+  .atlas-toolbar { inset: 12px 12px auto; gap: 7px; }
+  .wallet-map .search-wrap { flex: 1; width: auto; }
+  .wallet-map #search-form { height: 42px; padding: 0 10px; }
+  .wallet-map #search { font-size: 12px; }
+  .wallet-map .atlas-actions { gap: 5px; }
+  .wallet-map .atlas-actions button { height: 42px; padding: 0 9px; font-size: 12px; }
+  .wallet-map .atlas-actions .atlas-tool-icon { width: 36px; height: 40px; }
+  .wallet-map .atlas-actions #atlas-count { display: none; }
+  .wallet-map .map-tools { right: 12px; bottom: 56px; }
+  .atlas-controls { right: 12px; bottom: 12px; }
+  .wallet-map .map-footer { left: 12px; bottom: 12px; }
+  .wallet-map #coordinates { display: none; }
+  .wallet-map .explorer { inset: 62px 12px auto auto; }
+  .wallet-map .detail, .wallet-map .placement { left: 12px; bottom: 55px; }
+  .atlas-feedback { left: 12px; top: 61px; }
+  .wallet-map.atlas-docked { --atlas-dock-width: 204px; --atlas-dock-gap: 7px; }
+  .wallet-map.atlas-docked .explorer { inset: 62px 12px 12px auto; }
+}
+@media (max-width: 550px) {
+  .atlas-toolbar { flex-wrap: wrap; }
+  .wallet-map .atlas-toolbar .search-wrap { flex-basis: 100%; }
+  .wallet-map .atlas-actions { flex-wrap: wrap; }
+  .wallet-map:not(.atlas-docked) .explorer, .wallet-map.atlas-docked .explorer, .wallet-map .atlas-feedback { top: 110px; }
+}
+@media (max-height: 425px) {
+  .wallet-map .map-tools button { height: 29px; }
+  .wallet-map .detail { max-height: calc(100% - 120px); }
+  .wallet-map .placement { padding: 10px 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wallet-map *, .wallet-map *::before, .wallet-map *::after { transition: none; }
+}
